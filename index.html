@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>PRIME LEGENDS • SLIDE</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(145deg, #0b0c1a 0%, #1a1b2f 100%);
+            color: #e0e0ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2a2b40;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #aa5eff;
+            border-radius: 10px;
+        }
+        
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(170, 94, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .header {
+            background: rgba(20, 22, 40, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #aa5eff;
+            box-shadow: 0 0 20px rgba(170, 94, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #aa5eff, #5ec8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px #aa5eff;
+        }
+        
+        .logo p {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: #5ec8ff;
+        }
+        
+        .admin-crown {
+            background: none;
+            border: 2px solid #aa5eff;
+            color: #aa5eff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 15px #aa5eff;
+        }
+        
+        .admin-crown:hover {
+            background: #aa5eff;
+            color: #0b0c1a;
+        }
+        
+        .slider-tabs {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(10, 12, 26, 0.7);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid #5ec8ff;
+        }
+        
+        .slider-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab-btn {
+            background: transparent;
+            border: 1px solid #5ec8ff;
+            color: #5ec8ff;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .tab-btn.active {
+            background: #5ec8ff;
+            color: #0b0c1a;
+            box-shadow: 0 0 15px #5ec8ff;
+        }
+
+        .tab-btn.admin-only {
+            display: none;
+        }
+        .tab-btn.admin-only.show {
+            display: inline-block;
+        }
+        
+        .slider-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            height: calc(100vh - 150px);
+            scrollbar-width: none;
+        }
+        
+        .slider-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .slide-page {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .card {
+            background: rgba(30, 32, 58, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(94, 200, 255, 0.2);
+            border-radius: 30px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #aa5eff;
+            text-shadow: 0 0 8px #aa5eff;
+        }
+        
+        .spotlight-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .spotlight-icon {
+            font-size: 4rem;
+            color: #aa5eff;
+            filter: drop-shadow(0 0 15px #aa5eff);
+        }
+        
+        .spotlight-info h2 {
+            font-size: 2rem;
+            color: #5ec8ff;
+        }
+        
+        .streak-box {
+            background: rgba(170,94,255,0.2);
+            border-radius: 20px;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #aa5eff;
+        }
+        
+        .streak-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #5ec8ff;
+            margin: 0 10px;
+        }
+        
+        .top-player-item {
+            background: rgba(0,0,0,0.3);
+            border-left: 5px solid #aa5eff;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .top-player-item:hover {
+            border-left-color: #5ec8ff;
+            transform: translateX(5px);
+        }
+        
+        .rank {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #5ec8ff;
+            min-width: 50px;
+        }
+        
+        .player-detail {
+            display: none;
+            background: rgba(20,22,40,0.9);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 5px;
+            border: 1px dashed #aa5eff;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .glass-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #5ec8ff;
+            border-radius: 50px;
+            padding: 14px 20px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .glass-input:focus {
+            border-color: #aa5eff;
+            box-shadow: 0 0 15px #aa5eff;
+        }
+        
+        .btn-neon {
+            background: transparent;
+            border: 2px solid #5ec8ff;
+            color: #5ec8ff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-neon:hover {
+            background: #5ec8ff;
+            color: #0b0c1a;
+            box-shadow: 0 0 20px #5ec8ff;
+        }
+        
+        .search-result-card {
+            background: rgba(30,32,58,0.8);
+            border: 1px solid #aa5eff;
+            border-radius: 25px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 8px 12px;
+            border-radius: 30px;
+            text-align: center;
+        }
+        
+        .banned-tag {
+            color: #ff5e7c;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-shadow: 0 0 10px red;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.03);
+            border-left: 3px solid #5ec8ff;
+        }
+        
+        .message.admin {
+            border-left-color: #aa5eff;
+            background: rgba(170,94,255,0.1);
+        }
+        
+        .reactions {
+            display: flex;
+            gap: 12px;
+            margin-top: 5px;
+        }
+        
+        .reaction-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .editable-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        
+        .edit-btn {
+            background: none;
+            border: 1px solid #aa5eff;
+            color: #aa5eff;
+            padding: 6px 18px;
+            border-radius: 30px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        
+        .edit-btn:hover {
+            background: #aa5eff;
+            color: #0b0c1a;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .admin-only {
+            display: none;
+        }
+        
+        .admin-only.show {
+            display: block;
+        }
+        
+        .youtube-link {
+            color: #ff5e7c;
+            font-size: 1.2rem;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top:0;left:0;width:100%;height:100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #1a1b2f;
+            border: 2px solid #aa5eff;
+            border-radius: 40px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .join-icons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .join-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 2.5rem;
+            transition: 0.2s;
+        }
+        .join-icon span {
+            font-size: 0.9rem;
+            color: #5ec8ff;
+        }
+        .join-icon:hover {
+            transform: scale(1.1);
+            color: #aa5eff;
+        }
+        
+        .admin-player-row {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .admin-player-info {
+            flex: 2;
+            min-width: 150px;
+        }
+        .admin-player-info strong {
+            color: #5ec8ff;
+        }
+        .admin-player-stats {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .stat-badge {
+            background: #2a2b40;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .admin-player-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            background: none;
+            border: 1px solid #5ec8ff;
+            color: #5ec8ff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-btn:hover {
+            background: #5ec8ff;
+            color: #0b0c1a;
+        }
+        .action-btn.danger {
+            border-color: #ff5e7c;
+            color: #ff5e7c;
+        }
+        .action-btn.danger:hover {
+            background: #ff5e7c;
+            color: #0b0c1a;
+        }
+        
+        /* Announcement feed */
+        .announcement-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #5ec8ff;
+        }
+        .announcement-text {
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+        }
+        .announcement-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 15px;
+            margin-top: 10px;
+            border: 2px solid #aa5eff;
+        }
+        .announcement-time {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        /* File input */
+        .file-input {
+            margin: 10px 0;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:#aa5eff;"><i class="fas fa-lock"></i> ADMIN</h2>
+            <input type="password" id="secretKeyInput" placeholder="Secret Key" class="glass-input" style="margin:20px 0;">
+            <button onclick="checkSecretKey()" class="btn-neon">UNLOCK</button>
+            <button onclick="closeModal()" class="btn-neon" style="border-color:#aaa; color:#aaa;">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- Edit Player Modal -->
+    <div id="editPlayerModal" class="modal">
+        <div class="modal-content" style="max-width:600px;">
+            <h2 style="color:#aa5eff;"><i class="fas fa-user-edit"></i> EDIT PLAYER</h2>
+            <input type="hidden" id="editPlayerId">
+            <input type="hidden" id="editOldUid">   <!-- Store old UID -->
+            <input type="text" id="editUid" placeholder="UID" class="glass-input">
+            <input type="text" id="editName" placeholder="Name" class="glass-input">
+            <input type="text" id="editNickname" placeholder="Nickname" class="glass-input">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                <input type="number" id="editMatches" placeholder="Matches" class="glass-input">
+                <input type="number" id="editWins" placeholder="Wins" class="glass-input">
+                <input type="number" id="editLosses" placeholder="Losses" class="glass-input">
+                <input type="number" id="editDraws" placeholder="Draws" class="glass-input">
+                <input type="number" id="editStreak" placeholder="Streak" class="glass-input">
+                <input type="number" id="editHeadshot" placeholder="Headshot %" class="glass-input">
+                <input type="number" id="editTops" placeholder="Tops" class="glass-input">
+            </div>
+            <div style="margin:10px;">
+                <label><input type="checkbox" id="editBanned"> Banned</label>
+            </div>
+            <button onclick="savePlayerEdit()" class="btn-neon">SAVE</button>
+            <button onclick="closeEditPlayerModal()" class="btn-neon" style="border-color:#aaa; color:#aaa;">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- New Announcement Modal -->
+    <div id="newAnnouncementModal" class="modal">
+        <div class="modal-content" style="max-width:500px;">
+            <h2 style="color:#aa5eff;"><i class="fas fa-bullhorn"></i> NEW ANNOUNCEMENT</h2>
+            <textarea id="announcementText" rows="4" placeholder="Announcement text..." class="glass-input" style="resize:vertical;"></textarea>
+            <div class="file-input">
+                <label>Attach image (optional):</label>
+                <input type="file" id="announcementImage" accept="image/*">
+            </div>
+            <button onclick="postAnnouncement()" class="btn-neon">POST</button>
+            <button onclick="closeNewAnnouncementModal()" class="btn-neon" style="border-color:#aaa; color:#aaa;">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h1>PRIME LEGENDS</h1>
+            <p>SLIDE EDITION</p>
+        </div>
+        <button class="admin-crown" onclick="openAdminModal()"><i class="fas fa-crown"></i></button>
+    </header>
+
+    <!-- Slider Tabs -->
+    <div class="slider-tabs" id="tabContainer">
+        <button class="tab-btn active" data-index="0">🏠 HOME</button>
+        <button class="tab-btn" data-index="1">💬 CHAT</button>
+        <button class="tab-btn" data-index="2">📜 RULES</button>
+        <button class="tab-btn" data-index="3">🖐️ JOIN</button>
+        <button class="tab-btn" data-index="4">📢 ANNOUNCE</button>
+        <button class="tab-btn" data-index="5">📺 YOUTUBE</button>
+        <button class="tab-btn admin-only" id="adminTabBtn" data-index="6">👤 ADMIN</button>
+    </div>
+
+    <!-- Sliding Pages -->
+    <div class="slider-container" id="slider">
+        <!-- PAGE 0 - HOME -->
+        <div class="slide-page" id="page0">
+            <!-- Spotlight -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-crown" style="color:#aa5eff;"></i> TOP PLAYER</div>
+                <div class="spotlight-content">
+                    <div class="spotlight-icon"><i class="fas fa-gamepad"></i></div>
+                    <div class="spotlight-info">
+                        <h2 id="spotlightName">TGT TANJIRO</h2>
+                        <div class="streak-box">
+                            <span>WINNING STREAK</span>
+                            <span class="streak-number" id="spotlightStreak">12</span>
+                            <span>MATCHES</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top 3 Players -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-trophy"></i> TOP 3</div>
+                <div id="topPlayers"></div>
+                <div class="admin-only" id="topPlayersAdmin">
+                    <button onclick="editTopPlayers()" class="edit-btn"><i class="fas fa-edit"></i> EDIT TOP 3</button>
+                </div>
+            </div>
+            
+            <!-- Search Player -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-search"></i> SEARCH</div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Enter UID" class="glass-input">
+                    <button onclick="searchPlayer()" class="btn-neon">GO</button>
+                </div>
+ <div id="searchResult"></div>
+            </div>
+        </div>
+
+        <!-- PAGE 1 - CHAT -->
+        <div class="slide-page" id="page1">
+            <div class="card" style="min-height: 80%;">
+                <div class="card-title"><i class="fas fa-comments"></i> COMMUNITY CHAT</div>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Type message..." disabled class="glass-input">
+                    <button onclick="sendMessage()" id="sendBtn" disabled class="btn-neon">SEND</button>
+                </div>
+                <p style="color:#aaa; margin-top:10px;"><i class="fas fa-info-circle"></i> Only admin can send text. Others react.</p>
+            </div>
+        </div>
+
+        <!-- PAGE 2 - RULES -->
+        <div class="slide-page" id="page2">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book"></i> RULES</div>
+                <div id="rulesContent" class="editable-content"></div>
+                <button id="editRulesBtn" class="edit-btn hidden" onclick="editSection('rules')">EDIT</button>
+            </div>
+        </div>
+
+        <!-- PAGE 3 - HOW TO JOIN (with icons) -->
+        <div class="slide-page" id="page3">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-hand-point-right"></i> HOW TO JOIN</div>
+                <div id="joinContent" class="editable-content" style="display:none;"></div>
+                <div class="join-icons">
+                    <a href="https://wa.me/8010956065?text=I%20want%20to%20join%20prime%20legends%20tournament%20please%20add%20my%20name" target="_blank" class="join-icon">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    <a href="https://www.instagram.com/primeeee__ig" target="_blank" class="join-icon">
+                        <i class="fab fa-instagram"></i>
+                        <span>Instagram</span>
+                    </a>
+                </div>
+                <p style="text-align:center; margin-top:10px; color:#aaa;">Touch the logo to join</p>
+                <button id="editJoinBtn" class="edit-btn hidden" onclick="editSection('howToJoin')">EDIT</button>
+            </div>
+        </div>
+
+        <!-- PAGE 4 - ANNOUNCEMENT (Feed) -->
+        <div class="slide-page" id="page4">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-bullhorn"></i> ANNOUNCEMENTS</div>
+                <div id="announcementFeed"></div>
+                <button id="newAnnouncementBtn" class="edit-btn hidden" onclick="openNewAnnouncementModal()">+ NEW ANNOUNCEMENT</button>
+            </div>
+        </div>
+
+        <!-- PAGE 5 - YOUTUBE -->
+        <div class="slide-page" id="page5">
+            <div class="card">
+                <div class="card-title"><i class="fab fa-youtube"></i> LIVE STREAM</div>
+                <a id="youtubeLink" href="#" target="_blank" class="youtube-link"></a>
+                <button id="editYoutubeBtn" class="edit-btn hidden" onclick="editSection('youtube')">EDIT</button>
+            </div>
+        </div>
+
+        <!-- PAGE 6 - ADMIN PANEL -->
+        <div class="slide-page" id="page6">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-users-cog"></i> ADMIN PANEL</div>
+                <div id="adminPlayerList"></div>
+                <p id="adminNoPlayerMsg" style="display:none;">No players found.</p>
+                <button onclick="openAddPlayerModal()" class="btn-neon" style="margin-top:15px;"><i class="fas fa-user-plus"></i> ADD NEW PLAYER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Player Modal -->
+    <div id="addPlayerModal" class="modal">
+        <div class="modal-content" style="max-width:500px;">
+            <h2 style="color:#aa5eff;">ADD NEW PLAYER</h2>
+            <input type="text" id="newPlayerUid" placeholder="UID" class="glass-input">
+            <input type="text" id="newPlayerName" placeholder="Name" class="glass-input">
+            <input type="text" id="newPlayerNickname" placeholder="Nickname" class="glass-input">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                <input type="number" id="newPlayerMatches" placeholder="Matches" class="glass-input">
+                <input type="number" id="newPlayerWins" placeholder="Wins" class="glass-input">
+                <input type="number" id="newPlayerLosses" placeholder="Losses" class="glass-input">
+                <input type="number" id="newPlayerDraws" placeholder="Draws" class="glass-input">
+                <input type="number" id="newPlayerStreak" placeholder="Streak" class="glass-input">
+                <input type="number" id="newPlayerHeadshot" placeholder="Headshot %" class="glass-input">
+            </div>
+            <div style="margin:10px;"><label><input type="checkbox" id="newPlayerBanned"> Banned</label></div>
+            <button onclick="addNewPlayer()" class="btn-neon">ADD</button>
+            <button onclick="closeAddPlayerModal()" class="btn-neon" style="border-color:#aaa; color:#aaa;">CANCEL</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyApHyFkwWEpbjGCZY9DIabgCmhKyAGudlQ",
+            authDomain: "prime-legends.firebaseapp.com",
+            projectId: "prime-legends",
+            storageBucket: "prime-legends.firebasestorage.app",
+            messagingSenderId: "387101086974",
+            appId: "1:387101086974:web:983ed2c423e45b067a81af"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        const SECRET_KEY = "1037 FOREVER";
+        let isAdmin = false;
+
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab-btn');
+        const slider = document.getElementById('slider');
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                slider.scrollTo({ left: index * window.innerWidth, behavior: 'smooth' });
+            });
+        });
+
+        slider.addEventListener('scroll', () => {
+            const index = Math.round(slider.scrollLeft / window.innerWidth);
+            tabs.forEach((t, i) => t.classList.toggle('active', i === index));
+        });
+
+        // Modal functions
+        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
+        function openAddPlayerModal() { document.getElementById('addPlayerModal').style.display = 'flex'; }
+        function closeAddPlayerModal() { document.getElementById('addPlayerModal').style.display = 'none'; }
+        function openNewAnnouncementModal() { document.getElementById('newAnnouncementModal').style.display = 'flex'; }
+        function closeNewAnnouncementModal() { document.getElementById('newAnnouncementModal').style.display = 'none'; }
+        function openEditPlayerModal(playerData, docId) {
+            document.getElementById('editPlayerId').value = docId;
+            document.getElementById('editOldUid').value = playerData.uid || '';   // Store old UID
+            document.getElementById('editUid').value = playerData.uid || '';
+            document.getElementById('editName').value = playerData.name || '';
+            document.getElementById('editNickname').value = playerData.nickname || '';
+            document.getElementById('editMatches').value = playerData.totalMatches || 0;
+            document.getElementById('editWins').value = playerData.wins || 0;
+            document.getElementById('editLosses').value = playerData.losses || 0;
+            document.getElementById('editDraws').value = playerData.draws || 0;
+            document.getElementById('editStreak').value = playerData.streak || 0;
+            document.getElementById('editHeadshot').value = playerData.headshotRate || 0;
+            document.getElementById('editTops').value = playerData.totalTops || 0;
+            document.getElementById('editBanned').checked = playerData.banned || false;
+            document.getElementById('editPlayerModal').style.display = 'flex';
+        }
+        function closeEditPlayerModal() { document.getElementById('editPlayerModal').style.display = 'none'; }
+
+        function checkSecretKey() {
+            if (document.getElementById('secretKeyInput').value === SECRET_KEY) {
+                isAdmin = true;
+                document.querySelectorAll('.edit-btn').forEach(btn => btn.classList.remove('hidden'));
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('show'));
+                document.getElementById('chatInput').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                loadAdminPlayers();
+                loadAnnouncements(); // refresh announcements with admin button
+                closeModal();
+                alert('Admin mode ON');
+            } else alert('Wrong key');
+        }
+
+        // Load settings (rules, join, youtube)
+        async function loadSettings() {
+            const ref = db.collection('settings').doc('general');
+            const doc = await ref.get();
+            if (doc.exists) {
+                const d = doc.data();
+                document.getElementById('rulesContent').innerText = d.rules || '';
+                document.getElementById('joinContent').innerText = d.howToJoin || '';
+                document.getElementById('youtubeLink').innerText = d.youtubeLink || 'No link';
+                document.getElementById('youtubeLink').href = d.youtubeLink || '#';
+            } else {
+                await ref.set({
+                    rules: `NO ROOF FIGHT\nNO ZONE PACKING\nAGAR OBJECTION HO TO PROOF DO...\nBANNED SKILLS: SONIYA, DMITRI, NERO, ORION, HOMER`,
+                    howToJoin: `WhatsApp: 8010956065\nInstagram: primeeee__ig`,
+                    youtubeLink: `https://youtube.com/@primeeee_02`
+                });
+                loadSettings();
+            }
+        }
+             // Spotlight
+        async function loadSpotlight() {
+            const doc = await db.collection('players').doc('526066368').get();
+            if (doc.exists) {
+                const d = doc.data();
+                document.getElementById('spotlightName').innerText = d.name || 'TGT TANJIRO';
+                document.getElementById('spotlightStreak').innerText = d.streak || 12;
+            }
+        }
+
+        // Top players
+        async function loadTopPlayers() {
+            const container = document.getElementById('topPlayers');
+            container.innerHTML = '';
+            const snap = await db.collection('players').where('banned', '==', false).orderBy('wins', 'desc').limit(3).get();
+            if (snap.empty) return container.innerHTML = '<p>No players</p>';
+            let rank = 1;
+            snap.forEach(doc => {
+                const d = doc.data();
+                const card = document.createElement('div');
+                card.className = 'top-player-item';
+                card.onclick = () => {
+                    const detail = document.getElementById(`detail-${doc.id}`);
+                    detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+                };
+                card.innerHTML = `<span class="rank">#${rank}</span> <span style="flex:1;">${d.name}</span> <span style="color:#5ec8ff;">${d.wins} wins</span>`;
+                container.appendChild(card);
+                const detail = document.createElement('div');
+                detail.id = `detail-${doc.id}`;
+                detail.className = 'player-detail';
+                detail.innerHTML = `<p><strong>UID:</strong> ${d.uid || 'N/A'}</p><p><strong>Matches:</strong> ${d.totalMatches || 0}</p><p><strong>Wins/Losses:</strong> ${d.wins}/${d.losses}</p><p><strong>Streak:</strong> ${d.streak || 0}</p><p><strong>Headshot:</strong> ${d.headshotRate || 0}%</p>`;
+                container.appendChild(detail);
+                rank++;
+            });
+        }
+
+        // Search
+        async function searchPlayer() {
+            const uid = document.getElementById('searchInput').value.trim();
+            if (!uid) return;
+            const doc = await db.collection('players').doc(uid).get();
+            const resDiv = document.getElementById('searchResult');
+            if (!doc.exists) return resDiv.innerHTML = '<p>Not found</p>';
+            const d = doc.data();
+            if (d.banned) return resDiv.innerHTML = '<div class="banned-tag">🚫 BANNED - ELIMINATED</div>';
+            resDiv.innerHTML = `
+                <div class="search-result-card">
+                    <h3 style="color:#5ec8ff;">${d.name}</h3>
+                    <div class="stat-grid">
+                        <div class="stat-item">UID ${uid}</div>
+                        <div class="stat-item">Wins ${d.wins}</div>
+                        <div class="stat-item">Matches ${d.totalMatches}</div>
+                        <div class="stat-item">Streak ${d.streak}</div>
+                        <div class="stat-item">Headshot ${d.headshotRate}%</div>
+                        <div class="stat-item">Tops ${d.totalTops}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Chat
+        function loadChat() {
+            db.collection('chat').orderBy('timestamp').limit(50).onSnapshot(snap => {
+                const chatDiv = document.getElementById('chatMessages');
+                chatDiv.innerHTML = '';
+                snap.forEach(d => {
+                    const msg = d.data();
+                    const div = document.createElement('div');
+                    div.className = `message ${msg.sender === 'admin' ? 'admin' : ''}`;
+                    div.innerHTML = `<span style="color:#aa5eff;">${msg.sender === 'admin' ? '🏆 ADMIN' : msg.sender}:</span> ${msg.text || ''}
+                        <div class="reactions">
+                            <button class="reaction-btn" onclick="addReaction('${d.id}','like')">👍 <span id="like-${d.id}">${msg.reactions?.like||0}</span></button>
+                            <button class="reaction-btn" onclick="addReaction('${d.id}','heart')">❤️ <span id="heart-${d.id}">${msg.reactions?.heart||0}</span></button>
+                            <button class="reaction-btn" onclick="addReaction('${d.id}','voteUp')">⬆️ <span id="voteUp-${d.id}">${msg.reactions?.voteUp||0}</span></button>
+                            <button class="reaction-btn" onclick="addReaction('${d.id}','voteDown')">⬇️ <span id="voteDown-${d.id}">${msg.reactions?.voteDown||0}</span></button>
+                        </div>`;
+                    chatDiv.appendChild(div);
+                });
+            });
+        }
+
+        async function sendMessage() {
+            if (!isAdmin) return;
+            const inp = document.getElementById('chatInput');
+            if (!inp.value.trim()) return;
+            await db.collection('chat').add({
+                text: inp.value,
+                sender: 'admin',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                reactions: { like:0, heart:0, voteUp:0, voteDown:0 }
+            });
+            inp.value = '';
+        }
+
+        async function addReaction(id, type) {
+            const ref = db.collection('chat').doc(id);
+            await ref.update({ [`reactions.${type}`]: firebase.firestore.FieldValue.increment(1) });
+        }
+
+        // Edit sections (rules, howToJoin, youtube)
+        function editSection(section) {
+            if (!isAdmin) return;
+            let current = '';
+            if (section === 'rules') current = document.getElementById('rulesContent').innerText;
+            else if (section === 'howToJoin') current = document.getElementById('joinContent').innerText;
+            else if (section === 'youtube') current = document.getElementById('youtubeLink').innerText;
+            const newText = prompt(`Edit ${section}:`, current);
+            if (newText !== null) updateSection(section, newText);
+        }
+
+        async function updateSection(section, text) {
+            const ref = db.collection('settings').doc('general');
+            if (section === 'rules') { await ref.update({ rules: text }); document.getElementById('rulesContent').innerText = text; }
+            else if (section === 'howToJoin') { await ref.update({ howToJoin: text }); document.getElementById('joinContent').innerText = text; }
+            else if (section === 'youtube') { await ref.update({ youtubeLink: text }); document.getElementById('youtubeLink').innerText = text; document.getElementById('youtubeLink').href = text; }
+        }
+
+        // Admin: Load all players with edit button
+        async function loadAdminPlayers() {
+            const container = document.getElementById('adminPlayerList');
+            container.innerHTML = '';
+            const snap = await db.collection('players').orderBy('name').get();
+            if (snap.empty) {
+                document.getElementById('adminNoPlayerMsg').style.display = 'block';
+                return;
+            }
+            document.getElementById('adminNoPlayerMsg').style.display = 'none';
+            snap.forEach(doc => {
+                const d = doc.data();
+                const row = document.createElement('div');
+                row.className = 'admin-player-row';
+                row.innerHTML = `
+                    <div class="admin-player-info">
+                        <strong>${d.name}</strong> <span style="color:#aaa;">(${d.uid || 'no UID'})</span>
+                    </div>
+                    <div class="admin-player-stats">
+                        <span class="stat-badge">Wins: ${d.wins || 0}</span>
+                        <span class="stat-badge">Matches: ${d.totalMatches || 0}</span>
+                        <span class="stat-badge">Streak: ${d.streak || 0}</span>
+                    </div>
+                    <div class="admin-player-actions">
+                        <button class="action-btn" onclick='openEditPlayerModal(${JSON.stringify(d)}, "${doc.id}")' title="Edit"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn danger" onclick="adminToggleBan('${doc.id}', ${d.banned})" title="Toggle Ban"><i class="fas fa-ban"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Save player edit (with UID change handling)
+        async function savePlayerEdit() {
+            if (!isAdmin) return;
+            const oldDocId = document.getElementById('editPlayerId').value;
+            const oldUid = document.getElementById('editOldUid').value;
+            const newUid = document.getElementById('editUid').value.trim();
+            if (!newUid) return alert('UID cannot be empty');
+            
+            const updatedData = {
+                uid: newUid,
+                name: document.getElementById('editName').value.trim() || 'Unknown',
+                nickname: document.getElementById('editNickname').value.trim() || '',
+                totalMatches: parseInt(document.getElementById('editMatches').value) || 0,
+                wins: parseInt(document.getElementById('editWins').value) || 0,
+                losses: parseInt(document.getElementById('editLosses').value) || 0,
+                draws: parseInt(document.getElementById('editDraws').value) || 0,
+                streak: parseInt(document.getElementById('editStreak').value) || 0,
+                headshotRate: parseInt(document.getElementById('editHeadshot').value) || 0,
+                totalTops: parseInt(document.getElementById('editTops').value) || 0,
+                banned: document.getElementById('editBanned').checked,
+                characterPic: ''
+            };
+
+            if (newUid !== oldUid) {
+                // Create new document with new UID
+                await db.collection('players').doc(newUid).set(updatedData);
+                // Delete old document
+                await db.collection('players').doc(oldDocId).delete();
+            } else {
+                // Update existing document
+                await db.collection('players').doc(oldDocId).update(updatedData);
+            }
+
+            closeEditPlayerModal();
+            // Refresh lists
+            loadTopPlayers();
+            loadSpotlight(); // in case spotlight player was edited
+            loadAdminPlayers();
+        }
+
+        async function adminToggleBan(playerId, currentBanned) {
+            if (!isAdmin) return;
+            await db.collection('players').doc(playerId).update({ banned: !currentBanned });
+            loadTopPlayers();
+            loadAdminPlayers();
+        }
+
+        // Add new player
+        async function addNewPlayer() {
+            if (!isAdmin) return;
+            const uid = document.getElementById('newPlayerUid').value.trim();
+            if (!uid) return alert('UID required');
+            await db.collection('players').doc(uid).set({
+                uid,
+                name: document.getElementById('newPlayerName').value || 'Unknown',
+                nickname: document.getElementById('newPlayerNickname').value || '',
+                totalMatches: parseInt(document.getElementById('newPlayerMatches').value) || 0,
+                wins: parseInt(document.getElementById('newPlayerWins').value) || 0,
+                losses: parseInt(document.getElementById('newPlayerLosses').value) || 0,
+                draws: parseInt(document.getElementById('newPlayerDraws').value) || 0,
+                streak: parseInt(document.getElementById('newPlayerStreak').value) || 0,
+                headshotRate: parseInt(document.getElementById('newPlayerHeadshot').value) || 0,
+                totalTops: 0,
+                banned: document.getElementById('newPlayerBanned').checked,
+                characterPic: ''
+            });
+            alert('Player added');
+            closeAddPlayerModal();
+            loadTopPlayers();
+            loadAdminPlayers();
+        }
+                // Announcements feed
+        async function loadAnnouncements() {
+            const container = document.getElementById('announcementFeed');
+            container.innerHTML = '';
+            const snap = await db.collection('announcements').orderBy('timestamp', 'desc').limit(20).get();
+            if (snap.empty) {
+                container.innerHTML = '<p>No announcements yet.</p>';
+                return;
+            }
+            snap.forEach(doc => {
+                const a = doc.data();
+                const div = document.createElement('div');
+                div.className = 'announcement-item';
+                let html = `<div class="announcement-text">${a.text}</div>`;
+                if (a.imageUrl) {
+                    html += `<img src="${a.imageUrl}" class="announcement-image" onclick="window.open(this.src)">`;
+                }
+                if (a.timestamp) {
+                    const date = new Date(a.timestamp.seconds * 1000);
+                    html += `<div class="announcement-time">${date.toLocaleString()}</div>`;
+                }
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+        }
+
+        // Post new announcement with optional image
+        async function postAnnouncement() {
+            if (!isAdmin) return;
+            const text = document.getElementById('announcementText').value.trim();
+            if (!text) return alert('Please enter announcement text');
+            const fileInput = document.getElementById('announcementImage');
+            let imageUrl = '';
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const storageRef = storage.ref(`announcements/${Date.now()}_${file.name}`);
+                await storageRef.put(file);
+                imageUrl = await storageRef.getDownloadURL();
+            }
+            await db.collection('announcements').add({
+                text: text,
+                imageUrl: imageUrl,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            closeNewAnnouncementModal();
+            document.getElementById('announcementText').value = '';
+            document.getElementById('announcementImage').value = '';
+            loadAnnouncements();
+        }
+
+        // Edit top players (placeholder)
+        function editTopPlayers() {
+            if (!isAdmin) alert('Use Admin Panel to update wins.');
+        }
+
+        // Seed players if empty
+        async function seedPlayers() {
+            const snap = await db.collection('players').limit(1).get();
+            if (!snap.empty) return;
+            const list = [
+                { uid:"526066368", name:"TGT TANJIRO", nickname:"TANJIRO", totalMatches:12, wins:12, losses:0, draws:0, streak:12, banned:false },
+                { uid:"1570067629", name:"DEADAIM", nickname:"DEADAIM", totalMatches:8, wins:6, losses:2, draws:0, streak:0, banned:false },
+                { uid:"1003", name:"REXXY ZIX", nickname:"REXXY", totalMatches:7, wins:6, losses:1, draws:0, streak:0, banned:true },
+                { uid:"1012", name:"THUNDER 999", nickname:"THUNDER", totalMatches:11, wins:7, losses:4, draws:0, streak:0, banned:false },
+                { uid:"8409193606", name:"Flaxxxy", nickname:"Flaxxxy", totalMatches:2, wins:2, losses:0, draws:0, streak:2, banned:false },
+                { uid:"101", name:"TG ANGRY", nickname:"ANGRY", totalMatches:6, wins:4, losses:2, draws:0, streak:0, banned:false }
+            ];
+            for (const p of list) {
+                await db.collection('players').doc(p.uid).set({ ...p, headshotRate:0, totalTops:0, characterPic:'' });
+            }
+        }
+
+        window.onload = async () => {
+            await loadSettings();
+            await seedPlayers();
+            await loadSpotlight();
+            await loadTopPlayers();
+            loadChat();
+            loadAnnouncements();
+        };
+    </script>
+</body>
+</html>
