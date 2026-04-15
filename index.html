@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>PRIME LEGENDS • PREMIUM V2</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* (Your existing CSS – same as before, no changes needed) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Rajdhani', sans-serif; background: radial-gradient(circle at 20% 30%, #0a0f1f, #03050b); color: #eef5ff; min-height: 100vh; overflow-x: hidden; position: relative; }
         .bg-mesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 70%, rgba(0, 255, 255, 0.1) 0%, transparent 45%), repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 8px); pointer-events: none; z-index: -2; }
@@ -144,7 +143,7 @@
         <!-- RULES -->
         <div class="slide-page"><div class="card"><div class="card-title"><i class="fas fa-book"></i> RULES</div><div id="rulesContent" class="editable-content"></div><button id="editRulesBtn" class="edit-btn hidden" onclick="editSection('rules')">EDIT</button></div></div>
 
-        <!-- JOIN (fixed WhatsApp) -->
+        <!-- JOIN -->
         <div class="slide-page"><div class="card"><div class="card-title"><i class="fas fa-hand-point-right"></i> HOW TO JOIN</div><div class="join-icons"><a href="https://wa.me/918010956065?text=I%20want%20to%20join%20prime%20legends%20tournament%20please%20add%20my%20name" target="_blank" class="join-icon"><i class="fab fa-whatsapp"></i><span style="display:block; font-size:0.8rem;">WhatsApp</span></a><a href="https://www.instagram.com/primeeee__ig" target="_blank" class="join-icon"><i class="fab fa-instagram"></i><span style="display:block; font-size:0.8rem;">Instagram</span></a></div><button id="editJoinBtn" class="edit-btn hidden" onclick="editSection('howToJoin')">EDIT</button></div></div>
 
         <!-- ANNOUNCEMENT -->
@@ -169,11 +168,11 @@
     <!-- New Announcement Modal -->
     <div id="newAnnouncementModal" class="modal"><div class="modal-content"><h2>NEW ANNOUNCEMENT</h2><textarea id="announcementText" rows="4" placeholder="Text..." class="glass-input"></textarea><div><input type="file" id="announcementImage" accept="image/*"></div><button onclick="postAnnouncement()" class="btn-neon">POST</button><button onclick="closeNewAnnouncementModal()" class="btn-neon">CANCEL</button></div></div>
 
-    <!-- Edit Player Modal (hidden structure) -->
+    <!-- Edit Player Modal -->
     <div id="editPlayerModal" class="modal"><div class="modal-content"><h2>Edit Player</h2><input type="hidden" id="editPlayerId"><input type="text" id="editUid" placeholder="UID" class="glass-input"><input type="text" id="editName" placeholder="Name" class="glass-input"><input type="text" id="editNickname" placeholder="Nickname" class="glass-input"><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;"><input type="number" id="editMatches" placeholder="Matches"><input type="number" id="editWins" placeholder="Wins"><input type="number" id="editLosses" placeholder="Losses"><input type="number" id="editDraws" placeholder="Draws"><input type="number" id="editStreak" placeholder="Streak"><input type="number" id="editHeadshot" placeholder="Headshot %"><input type="number" id="editTops" placeholder="Tops"></div><div><label><input type="checkbox" id="editBanned"> Banned</label></div><button onclick="savePlayerEdit()" class="btn-neon">SAVE</button><button onclick="document.getElementById('editPlayerModal').style.display='none'" class="btn-neon">Cancel</button></div></div>
 
     <script>
-        // ✅ NEW FIREBASE CONFIG (TUMHARA NAYA PROJECT)
+        // ✅ NEW FIREBASE CONFIG (plc-tournament)
         const firebaseConfig = {
             apiKey: "AIzaSyAtf_Pp5gw4RnkUxn2KIZpww_Jg8ioXz8k",
             authDomain: "plc-tournament.firebaseapp.com",
@@ -183,7 +182,6 @@
             appId: "1:94902401934:web:725032f032e965325dc2df"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const storage = firebase.storage();
@@ -198,10 +196,9 @@
         tabs.forEach((tab, idx) => tab.addEventListener('click', () => sliderEl.scrollTo({ left: idx * window.innerWidth, behavior: 'smooth' })));
         sliderEl.addEventListener('scroll', () => { let idx = Math.round(sliderEl.scrollLeft / window.innerWidth); tabs.forEach((t,i)=>t.classList.toggle('active',i===idx)); });
 
-        // Modals
         function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
-    function openAddPlayerModal() { document.getElementById('addPlayerModal').style.display = 'flex'; }
+        function openAddPlayerModal() { document.getElementById('addPlayerModal').style.display = 'flex'; }
         function closeAddPlayerModal() { document.getElementById('addPlayerModal').style.display = 'none'; }
         function openNewAnnouncementModal() { document.getElementById('newAnnouncementModal').style.display = 'flex'; }
         function closeNewAnnouncementModal() { document.getElementById('newAnnouncementModal').style.display = 'none'; }
@@ -246,19 +243,19 @@
                     document.getElementById('spotlightName').innerText = "No players";
                 }
             } catch (err) {
-                console.error("Spotlight error:", err);
-                document.getElementById('spotlightName').innerText = "Error loading";
+                console.error(err);
+                document.getElementById('spotlightName').innerText = "Error";
             }
         }
 
         async function loadTopPlayers() {
             const container = document.getElementById('topPlayers');
-            container.innerHTML = '<div style="text-align:center; padding:20px;">Loading top players...</div>';
+            container.innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>';
             try {
                 const snap = await db.collection('players').where('banned','==',false).orderBy('wins','desc').limit(3).get();
                 container.innerHTML = '';
                 if(snap.empty) {
-                    container.innerHTML = '<div style="text-align:center; padding:20px;">No players found.</div>';
+                    container.innerHTML = '<div>No players</div>';
                     return;
                 }
                 let rank=1;
@@ -282,8 +279,8 @@
                     rank++;
                 });
             } catch (err) {
-                console.error("TopPlayers error:", err);
-                container.innerHTML = `<div style="color:#ff8888; text-align:center; padding:20px;">Error: ${err.message}</div>`;
+                console.error(err);
+                container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
             }
         }
 
@@ -336,9 +333,10 @@
         }
         async function savePlayerEdit() { if(!isAdmin) return; const id=document.getElementById('editPlayerId').value; const newUid=document.getElementById('editUid').value.trim(); const data={ uid:newUid, name:document.getElementById('editName').value, nickname:document.getElementById('editNickname').value, totalMatches:parseInt(document.getElementById('editMatches').value)||0, wins:parseInt(document.getElementById('editWins').value)||0, losses:parseInt(document.getElementById('editLosses').value)||0, draws:parseInt(document.getElementById('editDraws').value)||0, streak:parseInt(document.getElementById('editStreak').value)||0, headshotRate:parseInt(document.getElementById('editHeadshot').value)||0, totalTops:parseInt(document.getElementById('editTops').value)||0, banned:document.getElementById('editBanned').checked, characterPic:'' }; if(newUid!==id) { await db.collection('players').doc(newUid).set(data); await db.collection('players').doc(id).delete(); } else { await db.collection('players').doc(id).update(data); } document.getElementById('editPlayerModal').style.display='none'; loadTopPlayers(); loadSpotlight(); loadAdminPlayers(); }
         async function addNewPlayer() { if(!isAdmin) return; const uid=document.getElementById('newPlayerUid').value.trim(); if(!uid) return; await db.collection('players').doc(uid).set({ uid, name:document.getElementById('newPlayerName').value, nickname:document.getElementById('newPlayerNickname').value, totalMatches:parseInt(document.getElementById('newPlayerMatches').value)||0, wins:parseInt(document.getElementById('newPlayerWins').value)||0, losses:parseInt(document.getElementById('newPlayerLosses').value)||0, draws:parseInt(document.getElementById('newPlayerDraws').value)||0, streak:parseInt(document.getElementById('newPlayerStreak').value)||0, headshotRate:parseInt(document.getElementById('newPlayerHeadshot').value)||0, totalTops:0, banned:document.getElementById('newPlayerBanned').checked, characterPic:'' }); alert('Added'); closeAddPlayerModal(); loadAdminPlayers(); loadTopPlayers(); }
-async function loadAnnouncements() { const container=document.getElementById('announcementFeed'); container.innerHTML=''; const snap=await db.collection('announcements').orderBy('timestamp','desc').limit(20).get(); if(snap.empty){ container.innerHTML='<p>No announcements</p>'; return; } snap.forEach(d=>{ const a=d.data(); const div=document.createElement('div'); div.style.background='rgba(0,0,0,0.3)'; div.style.borderRadius='20px'; div.style.padding='12px'; div.style.marginBottom='12px'; div.innerHTML=`<div>${a.text}</div>${a.imageUrl?`<img src="${a.imageUrl}" style="max-width:100%; border-radius:16px; margin-top:8px;">`:''}<div style="font-size:0.7rem; color:#aaa;">${a.timestamp?.toDate().toLocaleString()||''}</div>`; container.appendChild(div); }); }
+        async function loadAnnouncements() { const container=document.getElementById('announcementFeed'); container.innerHTML=''; const snap=await db.collection('announcements').orderBy('timestamp','desc').limit(20).get(); if(snap.empty){ container.innerHTML='<p>No announcements</p>'; return; } snap.forEach(d=>{ const a=d.data(); const div=document.createElement('div'); div.style.background='rgba(0,0,0,0.3)'; div.style.borderRadius='20px'; div.style.padding='12px'; div.style.marginBottom='12px'; div.innerHTML=`<div>${a.text}</div>${a.imageUrl?`<img src="${a.imageUrl}" style="max-width:100%; border-radius:16px; margin-top:8px;">`:''}<div style="font-size:0.7rem; color:#aaa;">${a.timestamp?.toDate().toLocaleString()||''}</div>`; container.appendChild(div); }); }
         async function postAnnouncement() { if(!isAdmin) return; const text=document.getElementById('announcementText').value.trim(); if(!text) return; let imgUrl=''; const file=document.getElementById('announcementImage').files[0]; if(file){ const ref=storage.ref(`announcements/${Date.now()}_${file.name}`); await ref.put(file); imgUrl=await ref.getDownloadURL(); } await db.collection('announcements').add({ text, imageUrl:imgUrl, timestamp:firebase.firestore.FieldValue.serverTimestamp() }); closeNewAnnouncementModal(); loadAnnouncements(); }
 
+        // History & Teams (same as before)
         const seasons = [
             { id: "PLC_S1T1", name: "PLC S1T1", status: "completed", topPlayer: "TGT TANJIRO" },
             { id: "PLC_S1T2", name: "PLC S1T2", status: "ongoing", topPlayer: "???" },
@@ -374,6 +372,7 @@ async function loadAnnouncements() { const container=document.getElementById('an
         async function saveChampions() { if(!isAdmin) return; for(let i=0;i<championsData.length;i++){ const val=document.getElementById(`champ_${i}`).value; if(val) championsData[i].champion=val; } await db.collection('settings').doc('champions').set({ list: championsData }); renderChampions(); closeChampionModal(); }
         function closeChampionModal() { document.getElementById('championModal').style.display='none'; }
 
+        // Reset stats for new season (keep current wins = 0)
         async function resetCurrentStats() {
             const flagRef=db.collection('settings').doc('flags');
             const flagDoc=await flagRef.get();
@@ -387,25 +386,77 @@ async function loadAnnouncements() { const container=document.getElementById('an
             const histDoc=await historyRef.get();
             if(!histDoc.exists) await historyRef.set({ players: s1t1Stats, topPlayer: "TGT TANJIRO" });
         }
+
+        // ===================== FULL PLAYER LIST (ALL 30+ PLAYERS) =====================
         async function seedInitialPlayers() {
-            const snap=await db.collection('players').limit(1).get();
-            if(snap.empty) {
-                const list = [
-                    { uid:"526066368", name:"TGT TANJIRO", nickname:"TANJIRO", totalMatches:0, wins:0, losses:0, draws:0, streak:0, banned:false },
-                    { uid:"1570067629", name:"DEADAIM", nickname:"DEADAIM", totalMatches:0, wins:0, losses:0, draws:0, streak:0, banned:false },
-                    { uid:"8409193606", name:"FLAXXY", nickname:"FLAXXY", totalMatches:0, wins:0, losses:0, draws:0, streak:0, banned:false },
-                    { uid:"3486331906", name:"THUNDER 999", nickname:"THUNDER", totalMatches:0, wins:0, losses:0, draws:0, streak:0, banned:false },
-                    { uid:"837391059", name:"TWINS", nickname:"TWINS", totalMatches:0, wins:0, losses:0, draws:0, streak:0, banned:false },
-                    { uid:"890", name:"REXXY ZIX", nickname:"REXXY", totalMatches:0, wins:0, losses:0, draws:0, streak:0, banned:true }
-                ];
-                for(const p of list) await db.collection('players').doc(p.uid).set(p);
+            const allPlayers = [
+                { uid: "526066368", name: "TGT TANJIRO", nickname: "TANJIRO", banned: false },
+                { uid: "1570067629", name: "DEADAIM", nickname: "DEADAIM", banned: false },
+                { uid: "8409193606", name: "FLAXXY", nickname: "FLAXXY", banned: false },
+                { uid: "3486331906", name: "THUNDER 999", nickname: "THUNDER", banned: false },
+                { uid: "837391059", name: "TWINS", nickname: "TWINS", banned: false },
+                { uid: "890", name: "REXXY ZIX", nickname: "REXXY", banned: true },
+                { uid: "3595434063", name: "TG ANGRY", nickname: "ANGRY", banned: false },
+                { uid: "2678898990", name: "TG TORNADO", nickname: "TORNADO", banned: false },
+                { uid: "9999", name: "TG ASHX", nickname: "ASHX", banned: false },
+                { uid: "2033506729", name: "TG OMYAA", nickname: "OMYAA", banned: false },
+                { uid: "369", name: "TG WOTA", nickname: "WOTA", banned: false },
+                { uid: "876", name: "TGT NOBITA", nickname: "NOBITA", banned: false },
+                { uid: "uid_AASHU", name: "AASHU", nickname: "AASHU", banned: false },
+                { uid: "888", name: "ANSH", nickname: "ANSH", banned: false },
+                { uid: "678", name: "APELO PRIME", nickname: "APELO", banned: false },
+                { uid: "777", name: "DM MEHIR", nickname: "MEHIR", banned: false },
+                { uid: "uid_FG_LICHI", name: "FG LICHI", nickname: "LICHI", banned: false },
+                { uid: "uid_GODZILLA", name: "GODZILLA", nickname: "GODZILLA", banned: false },
+                { uid: "2217017369", name: "HXCRR", nickname: "HXCRR", banned: false },
+                { uid: "1834978141", name: "ICONIC", nickname: "ICONIC", banned: false },
+                { uid: "uid_JK_BLUE_GOD", name: "J.K BLUE GOD", nickname: "BLUE GOD", banned: false },
+                { uid: "123", name: "JAY BHAI", nickname: "JAY", banned: false },
+                { uid: "2540511462", name: "KING KRI3850W", nickname: "KING", banned: false },
+                { uid: "uid_MR_ADITYA", name: "MR ADITYA.", nickname: "ADITYA", banned: false },
+                { uid: "uid_NIKHIL_PRIME", name: "NIKHIL PRIME", nickname: "NIKHIL", banned: false },
+                { uid: "uid_ONLY_ZIXU", name: "ONLY ZIXU", nickname: "ZIXU", banned: false },
+                { uid: "12345678", name: "PATLINBAI", nickname: "PATLIN", banned: false },
+                { uid: "555", name: "PE LEVI", nickname: "LEVI", banned: false },
+                { uid: "3724824984", name: "PN PURAV FF", nickname: "PURAV", banned: false },
+                { uid: "2869939473", name: "RAJ.", nickname: "RAJ", banned: false },
+                { uid: "3681154067", name: "SANTANU", nickname: "SANTANU", banned: false },
+                { uid: "uid_SWAYMINGYM", name: "SWAYMINGYM", nickname: "SWAYMING", banned: false },
+                { uid: "uid_TUSHYA_LIVE", name: "TUSHYA LIVE", nickname: "TUSHYA", banned: false },
+                { uid: "uid_UV_IS_BACK", name: "UV (IS) BACK", nickname: "UV", banned: false }
+            ];
+
+            // For each player, if not exists, create with zero stats
+            for (const p of allPlayers) {
+                const docRef = db.collection('players').doc(p.uid);
+                const docSnap = await docRef.get();
+                if (!docSnap.exists) {
+                    await docRef.set({
+                        uid: p.uid,
+                        name: p.name,
+                        nickname: p.nickname,
+                        totalMatches: 0,
+                        wins: 0,
+                        losses: 0,
+                        draws: 0,
+                        streak: 0,
+                        headshotRate: 0,
+                        totalTops: 0,
+                        banned: p.banned,
+                        characterPic: ''
+                    });
+                } else {
+                    // Ensure banned status is correct (in case changed)
+                    await docRef.update({ banned: p.banned });
+                }
             }
+            console.log("All players seeded/updated");
         }
 
         window.onload = async () => {
             await loadSettings();
-            await seedInitialPlayers();
-            await resetCurrentStats();
+            await seedInitialPlayers();  // This will add missing players
+            await resetCurrentStats();   // Reset wins to 0 for new season
             await loadSpotlight();
             await loadTopPlayers();
             loadChat();
